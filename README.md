@@ -1,8 +1,10 @@
 # Make Reels Real
 
 Share an Instagram Reel from the iPhone Share Sheet; the service extracts
-useful information and saves it to Google Sheets. Instagram DM intake is also
-included and can be enabled later when the Meta developer account is verified.
+useful information into a permanent Inbox plus a category-specific Google
+Sheets tab. A missing category tab is created automatically with its own useful
+schema. Instagram DM intake is also included and can be enabled later when the
+Meta developer account is verified.
 
 ## What it records
 
