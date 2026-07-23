@@ -30,7 +30,9 @@ When a webhook run starts:
    that order.
 6. POST `{"row": row}` as JSON to the URL in the `SHEETS_WEBHOOK_URL`
    environment variable. This Apps Script endpoint handles duplicate checking
-   and appending to the `Reels` tab. Never print or reveal that URL.
+   and appending to the `Reels` tab. Never print, echo, inspect, interpolate
+   into a displayed command, or reveal that URL. Reference the environment
+   variable directly from a script or command whose output cannot contain it.
 7. Treat `{ "ok": true, "duplicate": true }` as an already-saved result. Treat
    any response with `ok: false` as a failure and report its error without
    retrying duplicate writes.
@@ -40,4 +42,4 @@ When a webhook run starts:
 
 Do not ask for, print, store, or use an Anthropic API key. The webhook's selected
 Claude model provides the extraction capability. Require `SHEETS_WEBHOOK_URL`
-and fail clearly when it is absent.
+and fail clearly when it is absent, but never reveal its value while checking.
