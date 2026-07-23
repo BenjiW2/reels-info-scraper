@@ -35,6 +35,11 @@ When a webhook run starts:
    category names such as `Places`, `Recipes`, `Workouts`, `Hikes`, `Products`,
    `Home & DIY`, or `Other`. Reuse an existing category name when it fits; do
    not create near-duplicate categories such as `Food Places` and `Restaurants`.
+   `Workouts` is only for intentional physical exercise, fitness routines, or
+   training sessions. Do not classify drinking, eating, games, challenges,
+   stunts, or generic advice as a workout merely because they involve speed,
+   repetition, technique, or physical movement. Use `Other` when none of the
+   canonical utility categories genuinely applies.
 5. Build `inboxRow` with exactly these 14 fields:
    - Saved at (UTC ISO timestamp)
    - Title
