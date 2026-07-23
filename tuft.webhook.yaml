@@ -1,0 +1,9 @@
+version: 1
+filter: >-
+  has(body.url) &&
+  body.url.size() < 500 &&
+  body.url.matches("^https://(www\\.)?instagram\\.com/([A-Za-z0-9_.]+/)?(reel|reels|p)/[A-Za-z0-9_-]+/?(\\?.*)?$")
+payload: >-
+  {
+    "url": body.url
+  }

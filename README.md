@@ -115,7 +115,15 @@ In the Google Sheet:
 7. Under **Script properties**, click **Add script property**.
 8. Set the property name to `SPREADSHEET_ID`.
 9. Set its value to the spreadsheet ID copied in step 2.
-10. Save the property.
+10. Add a second script property named `WRITE_TOKEN`.
+11. Generate a strong random value locally, for example:
+
+    ```sh
+    openssl rand -hex 32
+    ```
+
+12. Paste that random value into `WRITE_TOKEN`.
+13. Save both properties.
 
 Do not add the full Google Sheet URL as the property value; use only the ID
 between `/d/` and `/edit`.
@@ -133,8 +141,9 @@ In Apps Script:
 7. Complete Google's authorization prompts.
 8. Copy the web app URL. It must end in `/exec`.
 
-Treat that `/exec` URL as a secret: anyone who has it can submit rows to the
-Sheet. Do not commit it, paste it into an issue, or share it in screenshots.
+Treat that `/exec` URL and the `WRITE_TOKEN` as secrets. The web app rejects
+requests that do not include the matching token. Do not commit either value,
+paste them into an issue, or share them in screenshots.
 
 When updating `Code.gs` later:
 
@@ -162,13 +171,19 @@ Open [the Tuft dashboard](https://dash.tuft.dev), then:
 
    ```text
    SHEETS_WEBHOOK_URL=<your Apps Script /exec URL>
+   SHEETS_WRITE_TOKEN=<the same random WRITE_TOKEN value>
    ```
 
 10. Create the webhook.
 11. Copy its private webhook URL.
 
-The Tuft webhook URL is also a secret. It can start an agent run on your
-machine. Never commit it or post it publicly.
+The Tuft webhook URL is also a secret. It contains the authentication token that
+can start an agent run on your machine and consume your configured Claude
+allowance. Never commit it, post it publicly, or expose it in screenshots.
+
+The repository's `tuft.webhook.yaml` rejects non-Instagram payloads before Tuft
+starts a Claude run and strips the accepted payload down to only the Reel URL.
+The private Tuft webhook URL remains the authorization boundary.
 
 ### 6. Build the iPhone Shortcut
 
@@ -308,8 +323,10 @@ Private, removed, region-locked, or login-gated Reels may not be readable.
 - Confirm **Execute as: Me**.
 - Confirm **Who has access: Anyone**.
 - Confirm the Apps Script property is named exactly `SPREADSHEET_ID`.
+- Confirm the Apps Script property `WRITE_TOKEN` exists.
 - Confirm `SHEETS_WEBHOOK_URL` contains the Apps Script URL, not the Google
   Sheet URL.
+- Confirm `SHEETS_WRITE_TOKEN` exactly matches the Apps Script `WRITE_TOKEN`.
 - Create a **New version** of the Apps Script deployment after code changes.
 
 ### The webhook reports a 404 after the row was written
@@ -336,12 +353,23 @@ Never commit or share:
 
 - the private Tuft webhook URL;
 - the Apps Script `/exec` URL;
+- the Apps Script `WRITE_TOKEN`;
+- the Tuft `SHEETS_WRITE_TOKEN` environment value;
 - Anthropic, Google, or Meta access tokens;
 - `.env` files;
 - Google service-account JSON.
 
 If a private URL or API key appears in chat, a screenshot, a log, or Git
 history, rotate it immediately.
+
+To rotate access:
+
+1. Generate a new `WRITE_TOKEN`.
+2. Replace it in Apps Script Project Settings.
+3. Replace `SHEETS_WRITE_TOKEN` in the Tuft webhook environment.
+4. If the Tuft webhook URL leaked, delete and recreate that webhook.
+5. If an Anthropic API key leaked, revoke it in the Anthropic Console and
+   replace it only in Tuft's encrypted provider/environment settings.
 
 The Apps Script sanitizes spreadsheet values that begin with formula-control
 characters to reduce formula-injection risk. It also serializes writes with a

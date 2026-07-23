@@ -71,6 +71,7 @@ When a webhook run starts:
 
    ```json
    {
+     "token": "<SHEETS_WRITE_TOKEN environment value>",
      "inboxRow": [],
      "category": "Places",
      "categoryHeaders": [],
@@ -78,12 +79,13 @@ When a webhook run starts:
    }
    ```
 
-   Never print, echo, inspect, interpolate into a displayed command, or reveal
-   the URL. Reference the environment variable directly from a command whose
-   output cannot contain it. When using curl, use `--data-binary` with `-L` and
-   do not add `-X POST`; Apps Script redirects after the initial POST, and
-   forcing POST on the redirected URL can create a false 404 after a successful
-   append.
+   Read the token from the `SHEETS_WRITE_TOKEN` environment variable. Never
+   print, echo, inspect, interpolate into a displayed command, or reveal either
+   secret. Build the request from environment variables inside a script or
+   command whose output cannot contain them. When using curl, use
+   `--data-binary` with `-L` and do not add `-X POST`; Apps Script redirects
+   after the initial POST, and forcing POST on the redirected URL can create a
+   false 404 after a successful append.
 8. Treat `{ "ok": true, "duplicate": true }` as already saved. Treat any
    response with `ok: false` as a failure and report its error without retrying.
 9. Finish with `Saved to <category>: <title>`, `Already saved: <title>`, or
@@ -91,4 +93,5 @@ When a webhook run starts:
 
 Do not ask for, print, store, or use an Anthropic API key. The webhook's selected
 Claude model provides extraction. Require `SHEETS_WEBHOOK_URL` and fail clearly
-when it is absent, but never reveal its value while checking.
+when it is absent. Also require `SHEETS_WRITE_TOKEN`. Never reveal either value
+while checking.

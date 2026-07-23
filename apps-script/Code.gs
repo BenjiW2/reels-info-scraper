@@ -12,6 +12,7 @@ function doPost(event) {
     lock.waitLock(30000);
     const payload = JSON.parse(event.postData.contents);
     validatePayload_(payload);
+    validateWriteToken_(payload.token);
 
     const spreadsheetId = PropertiesService
       .getScriptProperties()
@@ -43,6 +44,16 @@ function doPost(event) {
     return json_({ ok: false, error: String(error) });
   } finally {
     lock.releaseLock();
+  }
+}
+
+function validateWriteToken_(providedToken) {
+  const expectedToken = PropertiesService
+    .getScriptProperties()
+    .getProperty("WRITE_TOKEN");
+  if (!expectedToken) throw new Error("WRITE_TOKEN script property is missing");
+  if (typeof providedToken !== "string" || providedToken !== expectedToken) {
+    throw new Error("Unauthorized");
   }
 }
 
