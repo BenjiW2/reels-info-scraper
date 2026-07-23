@@ -11,16 +11,22 @@ When a webhook run starts:
 3. Analyze the actual public Reel media before classifying it:
    - Run `npm install` when dependencies are unavailable.
    - Run `npm run extract-media -- "<reel-url>" "<temporary-output-folder>"`.
+   - Transcribe the extracted `audio.wav` with
+     `npm run transcribe-audio -- "<audio.wav>" "<transcript.json>"`. The local
+     Whisper model downloads once into the machine cache and is reused later.
    - Read the downloaded metadata and any subtitle file.
+   - Read the Whisper transcript, including timestamps and detected language.
    - Visually inspect the sampled frames in chronological order for on-screen
      captions, venue names, ingredients, exercises, prices, and other facts.
-   - Combine video-frame evidence, subtitles, and the public caption. The
-     caption alone is not sufficient when media download succeeds.
+   - Combine audio transcript, video-frame evidence, subtitles, and the public
+     caption. The caption alone is not sufficient when media download succeeds.
    - If media download fails, use public caption/metadata only as a clearly
      lower-confidence fallback and say `Caption-only extraction` in Notes or
      Summary. Never claim to have watched or transcribed media that was not
      downloaded.
-   Extract only facts visible in those sources. Never invent a place, address,
+   If local transcription still fails, continue with frames/subtitles and say
+   `Audio transcription unavailable` in Notes or Summary. Extract only facts
+   visible or audible in those sources. Never invent a place, address,
    price, ingredient, quantity, exercise, or tip. If the Reel is private or
    unavailable and no meaningful public source can be read, report that and do
    not call the Sheet webhook.

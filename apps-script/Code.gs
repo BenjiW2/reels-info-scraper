@@ -1,6 +1,10 @@
-const SPREADSHEET_ID = "1J6_G1IRd3bqD5-dz21xHw24KUFbRtPvWOuLxwe5lzog";
 const INBOX_SHEET = "Inbox";
 const INBOX_FIELD_COUNT = 14;
+const INBOX_HEADERS = [
+  "Saved at", "Title", "Category", "Place", "City", "Country", "Address",
+  "Price", "Tips", "Summary", "Reel URL", "Instagram sender ID",
+  "Instagram message ID", "Confidence"
+];
 
 function doPost(event) {
   const lock = LockService.getScriptLock();
@@ -9,9 +13,12 @@ function doPost(event) {
     const payload = JSON.parse(event.postData.contents);
     validatePayload_(payload);
 
-    const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
-    const inbox = spreadsheet.getSheetByName(INBOX_SHEET);
-    if (!inbox) throw new Error("Inbox tab not found");
+    const spreadsheetId = PropertiesService
+      .getScriptProperties()
+      .getProperty("SPREADSHEET_ID");
+    if (!spreadsheetId) throw new Error("SPREADSHEET_ID script property is missing");
+    const spreadsheet = SpreadsheetApp.openById(spreadsheetId);
+    const inbox = getOrCreateInbox_(spreadsheet);
 
     const inboxRow = safeRow_(payload.inboxRow);
     const messageId = String(inboxRow[12] || "");
@@ -37,6 +44,24 @@ function doPost(event) {
   } finally {
     lock.releaseLock();
   }
+}
+
+function getOrCreateInbox_(spreadsheet) {
+  let sheet = spreadsheet.getSheetByName(INBOX_SHEET);
+  if (sheet) return sheet;
+  sheet = spreadsheet.insertSheet(INBOX_SHEET, 0);
+  sheet.getRange(1, 1, 1, INBOX_HEADERS.length).setValues([INBOX_HEADERS]);
+  sheet.setFrozenRows(1);
+  sheet.getRange(1, 1, 1, INBOX_HEADERS.length)
+    .setFontWeight("bold")
+    .setBackground("#eeeeee")
+    .setHorizontalAlignment("center")
+    .setVerticalAlignment("middle")
+    .setWrap(true);
+  sheet.setRowHeight(1, 44);
+  sheet.getRange(1, 1, sheet.getMaxRows(), INBOX_HEADERS.length).createFilter();
+  formatColumns_(sheet, INBOX_HEADERS);
+  return sheet;
 }
 
 function validatePayload_(payload) {

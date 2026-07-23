@@ -71,6 +71,7 @@ export async function downloadAndSampleReel(value: string, outputDirectory: stri
   if (!ffmpegPath) throw new Error("Bundled ffmpeg is unavailable");
 
   const frames = join(output, "frames");
+  const audio = join(output, "audio.wav");
   await mkdir(frames, { recursive: true });
   await run(ffmpegPath, [
     "-hide_banner", "-loglevel", "error",
@@ -79,6 +80,13 @@ export async function downloadAndSampleReel(value: string, outputDirectory: stri
     "-vf", "fps=1/3,scale=768:-2",
     "-q:v", "3",
     join(frames, "frame-%03d.jpg")
+  ]);
+  await run(ffmpegPath, [
+    "-hide_banner", "-loglevel", "error",
+    "-i", join(output, video),
+    "-vn", "-ac", "1", "-ar", "16000",
+    "-c:a", "pcm_s16le",
+    audio
   ]);
 
   const frameFiles = (await readdir(frames))
@@ -91,6 +99,7 @@ export async function downloadAndSampleReel(value: string, outputDirectory: stri
     url,
     outputDirectory: output,
     video: join(output, video),
+    audio,
     frames: frameFiles,
     metadata: files.filter(name => name.endsWith(".info.json")).map(name => join(output, name)),
     subtitles: files.filter(name => name.endsWith(".srt")).map(name => join(output, name))
