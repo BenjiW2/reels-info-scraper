@@ -1,5 +1,6 @@
 const INBOX_SHEET = "Inbox";
 const INBOX_FIELD_COUNT = 14;
+const NOTE_RESULT_TTL_SECONDS = 21600;
 const INBOX_HEADERS = [
   "Saved at", "Title", "Category", "Place", "City", "Country", "Address",
   "Price", "Tips", "Summary", "Reel URL", "Instagram sender ID",
@@ -24,6 +25,7 @@ function doPost(event) {
     const inboxRow = safeRow_(payload.inboxRow);
     const messageId = String(inboxRow[12] || "");
     if (isDuplicate_(inbox, messageId)) {
+      cacheNoteResult_(payload.requestId, inboxRow);
       return json_({ ok: true, duplicate: true });
     }
 
@@ -39,11 +41,25 @@ function doPost(event) {
     inbox.appendRow(inboxRow);
     formatDataRow_(categorySheet, categorySheet.getLastRow());
     formatDataRow_(inbox, inbox.getLastRow());
+    cacheNoteResult_(payload.requestId, inboxRow);
     return json_({ ok: true, duplicate: false, category: categoryName });
   } catch (error) {
     return json_({ ok: false, error: String(error) });
   } finally {
     lock.releaseLock();
+  }
+}
+
+function doGet(event) {
+  try {
+    const requestId = validateRequestId_(event.parameter.requestId, true);
+    const cached = CacheService
+      .getScriptCache()
+      .get("note-result:" + requestId);
+    if (!cached) return json_({ ok: true, status: "pending" });
+    return json_(Object.assign({ ok: true, status: "ready" }, JSON.parse(cached)));
+  } catch (error) {
+    return json_({ ok: false, error: String(error) });
   }
 }
 
@@ -90,6 +106,31 @@ function validatePayload_(payload) {
       payload.categoryRow.length !== payload.categoryHeaders.length) {
     throw new Error("Category row must match category headers");
   }
+  validateRequestId_(payload.requestId, false);
+}
+
+function validateRequestId_(requestId, required) {
+  if (!requestId && !required) return "";
+  const value = String(requestId || "");
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) {
+    throw new Error("A valid requestId UUID is required");
+  }
+  return value;
+}
+
+function cacheNoteResult_(requestId, inboxRow) {
+  const key = validateRequestId_(requestId, false);
+  if (!key) return;
+  CacheService.getScriptCache().put(
+    "note-result:" + key,
+    JSON.stringify({
+      title: String(inboxRow[1] || "Saved Reel"),
+      category: String(inboxRow[2] || "Other"),
+      summary: String(inboxRow[9] || ""),
+      reelUrl: String(inboxRow[10] || "")
+    }),
+    NOTE_RESULT_TTL_SECONDS
+  );
 }
 
 function isDuplicate_(sheet, messageId) {

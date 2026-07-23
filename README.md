@@ -20,6 +20,8 @@ The main workflow is:
    and metadata.
 7. Google Apps Script writes the result to a master `Inbox` and a
    category-specific tab such as `Places`, `Recipes`, `Workouts`, or `Hikes`.
+8. Optionally, the iPhone Shortcut waits for that result and appends the title,
+   summary, category, and Reel link to one running Apple Note.
 
 Missing category tabs are created automatically with their own schema,
 formatting, frozen header, filter, and readable column widths.
@@ -221,35 +223,77 @@ shortcut appears when Instagram shares a URL and receives that URL as
 #### Add the webhook request
 
 1. Tap **Add Action**.
-2. Search for **Get Contents of URL**.
-3. Add that action.
+2. Search for **Generate UUID** and add it.
+3. Search for **Get Contents of URL** and add it below **Generate UUID**.
 4. In its URL field, paste the private Tuft webhook URL.
 5. Expand the action's options.
 6. Set **Method** to `POST`.
 7. Set **Request Body** to `JSON`.
-8. Add one JSON field:
+8. Add these JSON fields:
 
    ```text
-   Key:   url
-   Value: Shortcut Input
+   Key:   url         Value: Shortcut Input
+   Key:   requestId   Value: UUID
    ```
 
 To insert `Shortcut Input`, tap the value field and select the magic variable
-named **Shortcut Input**. Do not type the words as ordinary text.
+named **Shortcut Input**. For `requestId`, select the magic variable produced
+by **Generate UUID**. Do not type either variable name as ordinary text.
 
 No API-key header is required. The Tuft webhook token is already part of its
 private URL.
 
-#### Add confirmation
+#### Append each result to one Apple Note
 
-1. Add a final **Show Notification** action.
-2. Set its text to:
+First open Apple Notes and create a note named **Saved Reels**. Then return to
+the Shortcut and add the following actions after the webhook request:
+
+1. Add **Repeat** and set it to `20` times.
+2. Inside **Repeat**, add **Wait** for `15` seconds.
+3. Add a **Text** action containing your Apps Script web-app URL followed by
+   `?requestId=` and the generated **UUID** magic variable:
 
    ```text
-   Reel sent ✅
+   https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec?requestId=UUID
    ```
 
-3. Tap **Done**.
+   Insert **UUID** as a magic variable; do not type the letters `UUID`.
+4. Add **Get Contents of URL** using that **Text** value. Leave its method as
+   `GET`.
+5. Add **Get Dictionary Value** and read the key `status` from the result.
+6. Add an **If** action: if `status` is `ready`, read the `title`, `category`,
+   `summary`, and `reelUrl` dictionary values from the same result.
+7. Inside that **If**, add a **Text** action formatted like:
+
+   ```text
+   Title
+   Category
+
+   Summary
+
+   Reel URL
+   ```
+
+   Replace each line with its matching dictionary-value magic variable.
+8. Add **Append to Note** and select the existing **Saved Reels** note.
+9. Add **Show Notification** with `Saved to Sheet + Notes ✅`.
+10. Add **Stop This Shortcut** so later repeat iterations do not append the
+    same Reel again.
+11. After **End Repeat**, add **Show Notification** with
+    `Saved to Sheet, but Notes timed out`.
+
+The polling loop waits for up to five minutes. Keep the Shortcut running while
+it processes. A Reel that takes longer still lands in Google Sheets, but it
+will not be appended to Apple Notes during that run.
+
+If Apple Notes output is not wanted, omit this entire polling section and add a
+final **Show Notification** action containing:
+
+```text
+Reel sent ✅
+```
+
+Tap **Done** when the Shortcut is complete.
 
 ### 7. Test from Instagram
 
@@ -270,6 +314,8 @@ After a successful run:
 
 - `Inbox` contains the canonical record.
 - A category-specific tab contains the useful domain-specific fields.
+- The **Saved Reels** Apple Note contains the title and summary when the
+  optional polling actions are installed.
 - Re-sharing the same canonical Reel does not add a duplicate.
 
 ## Category behavior
@@ -337,6 +383,19 @@ Private, removed, region-locked, or login-gated Reels may not be readable.
   Sheet URL.
 - Confirm `SHEETS_WRITE_TOKEN` exactly matches the Apps Script `WRITE_TOKEN`.
 - Create a **New version** of the Apps Script deployment after code changes.
+
+### The Sheet updates but Apple Notes does not
+
+- Confirm the Shortcut sends the generated UUID in the JSON field
+  `requestId`.
+- Confirm the polling URL is the Apps Script `/exec` URL followed by
+  `?requestId=` and the same generated UUID magic variable.
+- Confirm **Get Contents of URL** in the polling loop uses `GET`.
+- Confirm the Apple Note named **Saved Reels** exists and is selected in
+  **Append to Note**.
+- Deploy a **New version** of the Apps Script after copying the latest
+  `Code.gs`.
+- Keep the Shortcut open while it polls. The loop stops after five minutes.
 
 ### The webhook reports a 404 after the row was written
 
