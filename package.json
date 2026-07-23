@@ -1,0 +1,25 @@
+{
+  "name": "makereelsreal",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "test": "node --import tsx --test test/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.57.0",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "googleapis": "^150.0.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.10",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}
