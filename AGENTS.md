@@ -33,6 +33,10 @@ When a webhook run starts:
    and appending to the `Reels` tab. Never print, echo, inspect, interpolate
    into a displayed command, or reveal that URL. Reference the environment
    variable directly from a script or command whose output cannot contain it.
+   When using curl, use `--data-binary` with `-L` and do not add `-X POST`;
+   Apps Script returns a redirect after handling the initial POST, and forcing
+   POST again on the redirected URL can produce a false 404 after a successful
+   append.
 7. Treat `{ "ok": true, "duplicate": true }` as an already-saved result. Treat
    any response with `ok: false` as a failure and report its error without
    retrying duplicate writes.
