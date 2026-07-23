@@ -29,6 +29,8 @@ function doPost(event) {
     // Append to the category first. Inbox is the commit log and is written last.
     categorySheet.appendRow(safeRow_(payload.categoryRow));
     inbox.appendRow(inboxRow);
+    formatDataRow_(categorySheet, categorySheet.getLastRow());
+    formatDataRow_(inbox, inbox.getLastRow());
     return json_({ ok: true, duplicate: false, category: categoryName });
   } catch (error) {
     return json_({ ok: false, error: String(error) });
@@ -78,7 +80,7 @@ function getOrCreateCategorySheet_(spreadsheet, name, headers) {
       .setHorizontalAlignment("center")
       .setWrap(true);
     sheet.getRange(1, 1, sheet.getMaxRows(), safeHeaders.length).createFilter();
-    sheet.autoResizeColumns(1, safeHeaders.length);
+    formatColumns_(sheet, safeHeaders);
     return sheet;
   }
 
@@ -87,6 +89,27 @@ function getOrCreateCategorySheet_(spreadsheet, name, headers) {
     throw new Error("Existing category schema does not match: " + name);
   }
   return sheet;
+}
+
+function formatDataRow_(sheet, rowNumber) {
+  sheet.getRange(rowNumber, 1, 1, sheet.getLastColumn())
+    .setVerticalAlignment("top")
+    .setWrap(true);
+  sheet.setRowHeight(rowNumber, 72);
+}
+
+function formatColumns_(sheet, headers) {
+  headers.forEach((header, index) => {
+    const name = String(header).toLowerCase();
+    let width = 130;
+    if (/saved at|confidence|price|cost|status|difficulty|servings/.test(name)) width = 105;
+    if (/title|name|recipe|project|workout|product|hike/.test(name)) width = 220;
+    if (/city|country|type|brand|cuisine|goal|duration|prep time|cook time/.test(name)) width = 145;
+    if (/address|location|materials|equipment|muscle|dietary/.test(name)) width = 210;
+    if (/tips|summary|notes|steps|ingredients|exercises|best for|why save|safety/.test(name)) width = 300;
+    if (/url|link/.test(name)) width = 240;
+    sheet.setColumnWidth(index + 1, width);
+  });
 }
 
 function safeSheetName_(value) {

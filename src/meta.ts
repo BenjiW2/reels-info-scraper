@@ -7,7 +7,7 @@ export type InboundMessage = {
   reelUrl: string;
 };
 
-const reelPattern = /https?:\/\/(?:www\.)?instagram\.com\/(?:reel|reels|p)\/[A-Za-z0-9_-]+\/?(?:\?[^\s]*)?/i;
+const reelPattern = /https?:\/\/(?:www\.)?instagram\.com\/(?:[A-Za-z0-9_.]+\/)?(?:reel|reels|p)\/[A-Za-z0-9_-]+\/?(?:\?[^\s]*)?/i;
 
 function findReelUrl(message: any): string | null {
   const candidates = [

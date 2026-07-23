@@ -6,12 +6,26 @@ When a webhook run starts:
 
 1. Read the JSON trigger payload. It must contain an Instagram URL in `url`.
 2. Accept only `https://instagram.com/...` or `https://www.instagram.com/...`
-   URLs whose path begins with `/reel/`, `/reels/`, or `/p/`.
-3. Fetch the public Reel page and inspect its caption/title/description. Extract
-   only facts visible in the source. Never invent a place, address, price,
-   ingredient, quantity, exercise, or tip. If the Reel is private or
-   unavailable, report that and do not call the Sheet webhook.
-4. Classify the Reel by its actual utility. Prefer stable, human-friendly
+   URLs whose path contains `/reel/`, `/reels/`, or `/p/`, optionally after
+   the creator username.
+3. Analyze the actual public Reel media before classifying it:
+   - Run `npm install` when dependencies are unavailable.
+   - Run `npm run extract-media -- "<reel-url>" "<temporary-output-folder>"`.
+   - Read the downloaded metadata and any subtitle file.
+   - Visually inspect the sampled frames in chronological order for on-screen
+     captions, venue names, ingredients, exercises, prices, and other facts.
+   - Combine video-frame evidence, subtitles, and the public caption. The
+     caption alone is not sufficient when media download succeeds.
+   - If media download fails, use public caption/metadata only as a clearly
+     lower-confidence fallback and say `Caption-only extraction` in Notes or
+     Summary. Never claim to have watched or transcribed media that was not
+     downloaded.
+   Extract only facts visible in those sources. Never invent a place, address,
+   price, ingredient, quantity, exercise, or tip. If the Reel is private or
+   unavailable and no meaningful public source can be read, report that and do
+   not call the Sheet webhook.
+4. Classify the Reel by its actual utility. Use Title Case for category names.
+   Prefer stable, human-friendly
    category names such as `Places`, `Recipes`, `Workouts`, `Hikes`, `Products`,
    `Home & DIY`, or `Other`. Reuse an existing category name when it fits; do
    not create near-duplicate categories such as `Food Places` and `Restaurants`.

@@ -1,6 +1,6 @@
 import type { InboundMessage } from "./meta.js";
 
-const reelPattern = /^https:\/\/(?:www\.)?instagram\.com\/(?:reel|reels|p)\/[A-Za-z0-9_-]+\/?(?:\?[^\s]*)?$/i;
+const reelPattern = /^https:\/\/(?:www\.)?instagram\.com\/(?:[A-Za-z0-9_.]+\/)?(?:reel|reels|p)\/[A-Za-z0-9_-]+\/?(?:\?[^\s]*)?$/i;
 
 export function parseShortcutRequest(body: unknown): InboundMessage {
   const input = body as { url?: unknown; note?: unknown };

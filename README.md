@@ -6,6 +6,10 @@ Sheets tab. A missing category tab is created automatically with its own useful
 schema. Instagram DM intake is also included and can be enabled later when the
 Meta developer account is verified.
 
+Public Reels are downloaded and sampled every three seconds for visual analysis
+of on-screen captions and scene content. Public metadata/caption extraction is
+used only as a lower-confidence fallback when Instagram blocks media download.
+
 ## What it records
 
 Saved time, title, category, place, city, country, address, price, tips,
