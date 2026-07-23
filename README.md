@@ -3,10 +3,10 @@
 Turn Instagram Reels into useful, structured Google Sheets data from the iPhone
 Share Sheet.
 
-This setup works for one owner or a small trusted group. The owner configures
-Tuft, Claude, Google Sheets, and Apps Script once. Trusted friends only install
-the finished iPhone Shortcut; their Reels use the owner's Claude allowance and
-land in the same shared Sheet.
+This is a self-hosted workflow. Each user creates and controls their own GitHub
+fork, Google Sheet, Apps Script deployment, Tuft webhook, secrets, and iPhone
+Shortcut. Nothing in this repository is preconfigured to another person's
+account.
 
 The main workflow is:
 
@@ -26,8 +26,7 @@ formatting, frozen header, filter, and readable column widths.
 
 ## What you need
 
-- An iPhone with the Shortcuts app for the owner.
-- Optionally, one or more trusted friends with iPhones.
+- An iPhone with the Shortcuts app.
 - Instagram.
 - A Google account and a Google Sheet.
 - A Tuft machine with access to GitHub.
@@ -36,10 +35,11 @@ formatting, frozen header, filter, and readable column widths.
   your own webhook instructions and updates.
 
 You do **not** put an Anthropic API key in the iPhone Shortcut. The Shortcut
-only holds the private Tuft webhook URL.
+only holds your private Tuft webhook URL.
 
-Friends do not need the Anthropic key, Apps Script URL, Google Sheet write
-token, GitHub access, or Tuft dashboard access.
+Every URL, ID, and token shown below is either a placeholder or a value you
+generate yourself. The repository does not include anyone's credentials,
+webhook, spreadsheet ID, or deployed service URL.
 
 ## Architecture
 
@@ -47,7 +47,7 @@ token, GitHub access, or Tuft dashboard access.
 Instagram Share Sheet
         |
         v
-Owner or trusted friend's iPhone Shortcut
+Your iPhone Shortcut
         |
         | POST {"url": "<reel URL>"}
         v
@@ -272,56 +272,6 @@ After a successful run:
 - A category-specific tab contains the useful domain-specific fields.
 - Re-sharing the same canonical Reel does not add a duplicate.
 
-### 8. Share it with a trusted friend
-
-After the owner's Shortcut works, it can be shared with a trusted friend. Both
-people may use the same Tuft webhook and Google Sheet.
-
-On the owner's iPhone:
-
-1. Open the **Shortcuts** app.
-2. Press and hold **Save Reel**, or open it and use the Share button.
-3. Choose **Share**.
-4. Share it directly with the friend using AirDrop, Messages, or an iCloud
-   Shortcut link.
-5. Ask the friend not to forward the Shortcut or its link.
-
-On the friend's iPhone:
-
-1. Open the shared Shortcut.
-2. Review its actions.
-3. Tap **Add Shortcut**.
-4. Open its details and confirm **Show in Share Sheet** is enabled.
-5. Confirm it accepts **URLs**.
-6. Test one public Reel from Instagram.
-
-The friend needs no other URL, token, login, or API key. The private Tuft
-webhook URL is already embedded in **Get Contents of URL**.
-
-Sharing the Shortcut intentionally grants the friend permission to:
-
-- submit Instagram Reel URLs to the owner's Tuft webhook;
-- consume the owner's configured Claude usage;
-- add structured rows to the owner's Google Sheet.
-
-The repository filter only accepts valid Instagram Reel URLs, the Sheet bridge
-requires its separate write token, and duplicate detection remains global.
-However, the Shortcut must still be treated as a credential because it contains
-the private Tuft webhook URL.
-
-For one trusted friend, reusing the same webhook is reasonable. If independent
-revocation or usage separation becomes important, create a second Tuft webhook
-and put that second private URL in the friend's Shortcut.
-
-To remove the friend's access when both people used the same webhook:
-
-1. Delete and recreate the Tuft webhook.
-2. Replace the webhook URL in the owner's Shortcut.
-3. Do not send the replacement Shortcut to the former user.
-
-Rotating `WRITE_TOKEN` is not required solely to revoke the friend's Shortcut,
-because the friend never receives that token.
-
 ## Category behavior
 
 `AGENTS.md` defines canonical schemas for:
@@ -410,8 +360,7 @@ schema in `AGENTS.md` and the Sheet.
 
 Never commit or share:
 
-- the private Tuft webhook URL, except when intentionally embedding it in a
-  Shortcut shared directly with a trusted user;
+- the private Tuft webhook URL;
 - the Apps Script `/exec` URL;
 - the Apps Script `WRITE_TOKEN`;
 - the Tuft `SHEETS_WRITE_TOKEN` environment value;
@@ -421,10 +370,6 @@ Never commit or share:
 
 If a private URL or API key appears in chat, a screenshot, a log, or Git
 history, rotate it immediately.
-
-Do not send a friend the Anthropic API key, Apps Script `/exec` URL,
-`WRITE_TOKEN`, `SHEETS_WRITE_TOKEN`, Google credentials, or Tuft login. None of
-those are needed to use the shared Shortcut.
 
 To rotate access:
 
