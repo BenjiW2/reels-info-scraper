@@ -1,4 +1,4 @@
-# Make Reels Real webhook workflow
+# Reel Info Scraper webhook workflow
 
 This repository supports a Tuft webhook triggered by an iPhone Shortcut.
 

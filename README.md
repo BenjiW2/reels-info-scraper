@@ -1,4 +1,4 @@
-# Make Reels Real
+# Reel Info Scraper
 
 Turn Instagram Reels into useful, structured Google Sheets data from the iPhone
 Share Sheet.
@@ -178,7 +178,7 @@ Open the **Shortcuts** app on the iPhone.
 
 1. Tap **+** to create a shortcut.
 2. Tap the shortcut name at the top.
-3. Rename it to **Make Reels Real**.
+3. Rename it to **Save Reel**.
 
 #### Enable the Share Sheet
 
@@ -234,7 +234,7 @@ Use a public Reel for the first test:
 1. Open the Reel in Instagram.
 2. Tap **Share**.
 3. Tap **More** if the shortcut is not immediately visible.
-4. Choose **Make Reels Real**.
+4. Choose **Save Reel**.
 5. Wait for the `Reel sent ✅` notification.
 6. Open the Tuft dashboard and inspect the latest webhook run.
 7. Open the Google Sheet.

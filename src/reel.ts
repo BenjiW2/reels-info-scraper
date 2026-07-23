@@ -1,7 +1,7 @@
 export async function fetchReelContext(url: string) {
   const response = await fetch(url, {
     headers: {
-      "User-Agent": "Mozilla/5.0 (compatible; MakeReelsReal/1.0)",
+      "User-Agent": "Mozilla/5.0 (compatible; ReelInfoScraper/1.0)",
       "Accept-Language": "en"
     },
     redirect: "follow"

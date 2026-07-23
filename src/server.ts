@@ -58,7 +58,7 @@ app.post("/webhook", (req, res) => {
 
 const port = Number(process.env.PORT ?? 3000);
 ensureHeaders()
-  .then(() => app.listen(port, () => console.log(`Make Reels Real listening on ${port}`)))
+  .then(() => app.listen(port, () => console.log(`Reel Info Scraper listening on ${port}`)))
   .catch(error => {
     console.error("Startup failed", error);
     process.exit(1);
