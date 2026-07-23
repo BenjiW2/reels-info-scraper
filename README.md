@@ -47,6 +47,15 @@ The extraction layer uses Claude Haiku 4.5 by default. Store the Anthropic API
 key only in the server's `ANTHROPIC_API_KEY` environment variable; do not put it
 in the iPhone Shortcut.
 
+## Tuft webhook + Apps Script route
+
+For a credential-free Google Sheets bridge, open the target spreadsheet and
+choose **Extensions → Apps Script**. Replace the editor contents with
+`apps-script/Code.gs`, deploy it as a web app that executes as the sheet owner,
+and allow access to anyone with the deployment URL. Store the resulting `/exec`
+URL in the Tuft webhook's encrypted `SHEETS_WEBHOOK_URL` environment variable.
+The URL is a secret and must not be committed or pasted into chat.
+
 ## Verification
 
 ```sh

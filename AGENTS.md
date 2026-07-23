@@ -26,15 +26,18 @@ When a webhook run starts:
    - Instagram sender ID: `ios-shortcut`
    - Instagram message ID: `shortcut:<canonical URL>`
    - Confidence: number from 0 to 1
-5. Use the connected Google Drive/Sheets tools to open spreadsheet
-   `1J6_G1IRd3bqD5-dz21xHw24KUFbRtPvWOuLxwe5lzog`, tab `Reels`.
-6. Check column M for the Instagram message ID. If it already exists, do not
-   append another row.
-7. Append exactly one row in columns A:N, preserving the existing header,
-   formatting, filter, and unrelated cells.
+5. Build one JSON array named `row` containing the 14 values above in exactly
+   that order.
+6. POST `{"row": row}` as JSON to the URL in the `SHEETS_WEBHOOK_URL`
+   environment variable. This Apps Script endpoint handles duplicate checking
+   and appending to the `Reels` tab. Never print or reveal that URL.
+7. Treat `{ "ok": true, "duplicate": true }` as an already-saved result. Treat
+   any response with `ok: false` as a failure and report its error without
+   retrying duplicate writes.
 8. Finish with a short result saying `Saved: <title>` or `Already saved:
    <title>`. For inaccessible Reels, say `Could not read that Reel; make sure
    it is public.`
 
 Do not ask for, print, store, or use an Anthropic API key. The webhook's selected
-Claude model provides the extraction capability.
+Claude model provides the extraction capability. Require `SHEETS_WEBHOOK_URL`
+and fail clearly when it is absent.
